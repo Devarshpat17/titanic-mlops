@@ -6,12 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: env.REPO
-            }
-        }
-
         stage('Build') {
             steps {
                 sh 'docker-compose build'
@@ -31,11 +25,12 @@ pipeline {
                 sh 'curl -f http://localhost:5001/records || (echo "DBapp not responding"; exit 1)'
             }
         }
+    }
 
-        stage('Teardown') {
-            steps {
-                sh 'docker-compose down'
-            }
+    post {
+        always {
+            echo 'Tearing down containers...'
+            sh 'docker-compose down || true'
         }
     }
 }
